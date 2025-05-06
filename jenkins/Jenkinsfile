@@ -1,0 +1,52 @@
+pipeline {
+  agent any
+
+  environment {
+    AWS_DEFAULT_REGION = 'us-east-1'
+    FRONTEND_IMAGE = "smart-expense-frontend:\${env.BUILD_NUMBER}"
+  }
+
+  stages {
+    stage('Checkout') {
+      steps {
+        git url: 'https://github.com/your-username/smart-expense-tracker.git', branch: 'main'
+      }
+    }
+
+    stage('Build Frontend Docker Image') {
+      steps {
+        dir('frontend') {
+          sh 'docker build -t $FRONTEND_IMAGE .'
+        }
+      }
+    }
+
+    stage('Push to Registry (Optional)') {
+      steps {
+        // If using Docker Hub or ECR
+        // e.g., sh 'docker tag $FRONTEND_IMAGE your-repo/$FRONTEND_IMAGE'
+        //       sh 'docker push your-repo/$FRONTEND_IMAGE'
+        echo 'Skipping push for now'
+      }
+    }
+
+    stage('Deploy to AWS Amplify') {
+      steps {
+        withCredentials([usernamePassword(credentialsId: 'aws-cli-creds', usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY')]) {
+          sh 'npm install -g @aws-amplify/cli'
+          dir('frontend') {
+            // Amplify is already initialized; this will push the latest build
+            sh 'amplify publish --yes'
+          }
+        }
+      }
+    }
+  }
+
+  post {
+    always {
+      echo "Cleaning up local Docker images..."
+      sh 'docker rmi $FRONTEND_IMAGE || true'
+    }
+  }
+}
