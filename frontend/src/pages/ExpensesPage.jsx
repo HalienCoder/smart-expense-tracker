@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { fetchExpenses, updateExpense, deleteExpense } from '../services/expenseService'
+import { Link } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import ExpenseForm from '../components/ExpenseForm'
 
@@ -49,7 +50,15 @@ export default function ExpensesPage() {
   <div className="flex justify-between items-center mb-8 pb-4 border-b border-gray-200">
     <h1 className="text-3xl font-bold text-gray-900">All Expenses</h1>
     <div className="flex gap-2">
-      {/* Add any additional header buttons if needed */}
+    <Link 
+    to="/" 
+    className="flex items-center gap-1 px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+  >
+    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+    </svg>
+    Back to Home
+  </Link>
     </div>
   </div>
 

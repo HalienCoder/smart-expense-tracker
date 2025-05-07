@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { Pie } from 'react-chartjs-2';
 import { fetchExpenses, addExpense, deleteExpense, updateExpense } from '../services/expenseService';
+import { useNavigate } from 'react-router-dom';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 
 ChartJS.register(ArcElement, Tooltip, Legend);
@@ -15,7 +16,7 @@ export default function DashboardPage() {
     amount: '',
     category: '',
   });
-
+  const navigate = useNavigate();
   // Fetch expenses on mount
   useEffect(() => {
     const getExpenses = async () => {
@@ -145,7 +146,10 @@ export default function DashboardPage() {
   <div className="bg-white p-8 rounded-xl shadow-lg">
     <div className="flex justify-between items-center mb-6">
       <h2 className="text-2xl font-semibold text-gray-800">Recent Expenses</h2>
-      <button className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg transition-colors">
+      <button 
+        onClick={() => navigate('/expenses')}
+        className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 px-6 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 transform hover:-translate-y-0.5"
+      >
         View All Expenses
       </button>
     </div>
