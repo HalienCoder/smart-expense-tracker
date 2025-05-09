@@ -31,8 +31,12 @@ pipeline {
 
                                 echo "Building the app..."
                                 npm run build
-                                sh 'echo "Listing everything in frontend:" && ls -l && echo "Done"'
-                                sh 'echo "Full Jenkins workspace content:" && ls -l ../ && echo "In current dir:" && ls -l && echo "In dist if exists:" && ls -l dist || echo "dist not found"'
+
+                                echo "Listing current directory:"
+                                ls -l
+
+                                echo "Listing dist directory:"
+                                ls -l dist || echo "dist not found"
                             '''
                         } else {
                             error "package.json not found in 'frontend' directory!"
