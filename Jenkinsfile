@@ -1,9 +1,5 @@
 pipeline {
-  agent {
-    docker {
-      image 'node:18' // or 'node:20' if needed
-    }
-  }
+  agent any
 
   environment {
     AWS_ACCESS_KEY_ID     = credentials('aws-access-key-id')
@@ -11,7 +7,7 @@ pipeline {
     VITE_SUPABASE_URL     = credentials('supabase-url')
     VITE_SUPABASE_ANON_KEY= credentials('supabase-anon-key')
     AWS_DEFAULT_REGION    = 'us-east-1'
-    BUCKET_NAME           = ''
+    BUCKET_NAME           = 'my-expense-tracker-app11'
   }
 
   stages {
