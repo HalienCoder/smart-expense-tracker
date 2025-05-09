@@ -19,13 +19,19 @@ pipeline {
         stage('Build React App') {
             steps {
                 dir('client') {
-                    sh '''
-                        echo "Installing dependencies..."
-                        npm install
+                    script {
+                        if (fileExists('package.json')) {
+                            sh '''
+                                echo "Installing dependencies..."
+                                npm install
 
-                        echo "Building the app..."
-                        npm run build
-                    '''
+                                echo "Building the app..."
+                                npm run build
+                            '''
+                        } else {
+                            error "package.json not found in 'client' directory!"
+                        }
+                    }
                 }
             }
         }
@@ -35,7 +41,7 @@ pipeline {
                 dir('client') {
                     sh '''
                         echo "Uploading to S3..."
-                        aws s3 sync dist/ s3://my-expense-tracker-app11 --delete
+                        aws s3 sync dist/ s3://your-s3-bucket-name --delete
                     '''
                 }
             }
