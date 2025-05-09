@@ -31,6 +31,7 @@ pipeline {
 
                                 echo "Building the app..."
                                 npm run build
+                                sh 'ls -l frontend/dist'
                             '''
                         } else {
                             error "package.json not found in 'frontend' directory!"
