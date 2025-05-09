@@ -2,8 +2,8 @@ pipeline {
     agent any
 
     environment {
-        AWS_ACCESS_KEY_ID = credentials('aws-access-key')
-        AWS_SECRET_ACCESS_KEY = credentials('aws-secret-key')
+        AWS_ACCESS_KEY_ID = credentials('aws-access-key-id')
+        AWS_SECRET_ACCESS_KEY = credentials('aws-secret-access-key')
         VITE_SUPABASE_URL = credentials('supabase-url')
         VITE_SUPABASE_ANON_KEY = credentials('supabase-anon-key')
         BUCKET_NAME = 'my-expense-tracker-app11'  // Replace with your actual bucket name
