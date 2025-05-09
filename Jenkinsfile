@@ -1,43 +1,60 @@
 pipeline {
-  agent any
+    agent any
 
-  environment {
-    AWS_ACCESS_KEY_ID     = credentials('aws-access-key-id')
-    AWS_SECRET_ACCESS_KEY = credentials('aws-secret-access-key')
-    VITE_SUPABASE_URL     = credentials('supabase-url')
-    VITE_SUPABASE_ANON_KEY= credentials('supabase-anon-key')
-    AWS_DEFAULT_REGION    = 'us-east-1'
-    BUCKET_NAME           = 'my-expense-tracker-app11'
-  }
+    environment {
+        AWS_ACCESS_KEY_ID = credentials('aws-access-key')
+        AWS_SECRET_ACCESS_KEY = credentials('aws-secret-key')
+        VITE_SUPABASE_URL = credentials('supabase-url')
+        VITE_SUPABASE_ANON_KEY = credentials('supabase-anon-key')
+        BUCKET_NAME = 'my-expense-tracker-app11'  // Replace with your actual bucket name
+    }
 
-  stages {
-    stage('Install Dependencies & Build') {
-      steps {
-        dir('frontend') {
-          sh 'npm ci || npm install'
-          sh 'npm run build'
+    stages {
+        stage('Checkout Code') {
+            steps {
+                checkout scm
+            }
         }
-      }
-    }
 
-    stage('Install AWS CLI') {
-      steps {
-        sh '''
-          apt-get update && \
-          apt-get install -y unzip curl && \
-          curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && \
-          unzip awscliv2.zip && \
-          ./aws/install
-        '''
-      }
-    }
+        stage('Build & Deploy using Node Docker') {
+            agent {
+                docker {
+                    image 'node:18'
+                    args '-u root:root' // Ensures npm installs correctly in container
+                }
+            }
 
-    stage('Deploy to S3') {
-      steps {
-        dir('frontend') {
-          sh "aws s3 sync dist/ s3://$BUCKET_NAME --delete"
+            environment {
+                PATH = "$PATH:/root/.npm-global/bin"
+            }
+
+            steps {
+                dir('frontend') {
+                    withEnv([
+                        "VITE_SUPABASE_URL=${env.VITE_SUPABASE_URL}",
+                        "VITE_SUPABASE_ANON_KEY=${env.VITE_SUPABASE_ANON_KEY}"
+                    ]) {
+                        sh '''
+                          npm ci
+                          npm run build
+                        '''
+                    }
+                }
+            }
         }
-      }
+
+        stage('Install AWS CLI & Deploy to S3') {
+            agent any
+            steps {
+                sh '''
+                  curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+                  unzip -q awscliv2.zip
+                  sudo ./aws/install
+
+                  aws s3 rm s3://$BUCKET_NAME --recursive
+                  aws s3 cp frontend/dist s3://$BUCKET_NAME --recursive
+                '''
+            }
+        }
     }
-  }
 }
