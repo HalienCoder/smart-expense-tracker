@@ -31,7 +31,7 @@ pipeline {
 
                                 echo "Building the app..."
                                 npm run build
-                                sh 'ls -l frontend/dist'
+                                sh 'ls -l dist'
                             '''
                         } else {
                             error "package.json not found in 'frontend' directory!"
@@ -46,7 +46,7 @@ pipeline {
                 dir('frontend') {
                     sh '''
                         echo "Uploading to S3..."
-                        aws s3 sync dist/ s3://your-s3-bucket-name --delete
+                        aws s3 sync dist/ s3://$BUCKET_NAME --delete
                     '''
                 }
             }
