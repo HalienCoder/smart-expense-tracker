@@ -18,18 +18,22 @@ pipeline {
 
         stage('Build React App') {
             steps {
-                dir('client') {
+                dir('frontend') {
                     script {
                         if (fileExists('package.json')) {
                             sh '''
                                 echo "Installing dependencies..."
                                 npm install
 
+                                echo "Supabase URL: $VITE_SUPABASE_URL"
+                                echo "Bucket: $BUCKET_NAME"
+
+
                                 echo "Building the app..."
                                 npm run build
                             '''
                         } else {
-                            error "package.json not found in 'client' directory!"
+                            error "package.json not found in 'frontend' directory!"
                         }
                     }
                 }
@@ -38,7 +42,7 @@ pipeline {
 
         stage('Deploy to S3') {
             steps {
-                dir('client') {
+                dir('frontend') {
                     sh '''
                         echo "Uploading to S3..."
                         aws s3 sync dist/ s3://your-s3-bucket-name --delete
