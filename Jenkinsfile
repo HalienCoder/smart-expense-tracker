@@ -12,49 +12,38 @@ pipeline {
     stages {
         stage('Checkout Code') {
             steps {
-                checkout scm
+                git url: 'https://github.com/HalienCoder/smart-expense-tracker', branch: 'main'
             }
         }
 
-        stage('Build & Deploy using Node Docker') {
-            agent {
-                docker {
-                    image 'node:18'
-                    args '-u root:root' // Ensures npm installs correctly in container
-                }
-            }
-
-            environment {
-                PATH = "$PATH:/root/.npm-global/bin"
-            }
-
-            steps {
-                dir('frontend') {
-                    withEnv([
-                        "VITE_SUPABASE_URL=${env.VITE_SUPABASE_URL}",
-                        "VITE_SUPABASE_ANON_KEY=${env.VITE_SUPABASE_ANON_KEY}"
-                    ]) {
-                        sh '''
-                          npm ci
-                          npm run build
-                        '''
-                    }
-                }
-            }
-        }
-
-        stage('Install AWS CLI & Deploy to S3') {
-            agent any
+        stage('Build React App') {
             steps {
                 sh '''
-                  curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-                  unzip -q awscliv2.zip
-                  sudo ./aws/install
+                    echo "Installing dependencies..."
+                    npm install
 
-                  aws s3 rm s3://$BUCKET_NAME --recursive
-                  aws s3 cp frontend/dist s3://$BUCKET_NAME --recursive
+                    echo "Building the app..."
+                    npm run build
                 '''
             }
+        }
+
+        stage('Deploy to S3') {
+            steps {
+                sh '''
+                    echo "Uploading build to S3..."
+                    aws s3 sync dist/ s3://your-s3-bucket-name --delete
+                '''
+            }
+        }
+    }
+
+    post {
+        failure {
+            echo 'Pipeline failed.'
+        }
+        success {
+            echo 'Deployed successfully to S3!'
         }
     }
 }
