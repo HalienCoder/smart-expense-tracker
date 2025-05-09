@@ -18,22 +18,26 @@ pipeline {
 
         stage('Build React App') {
             steps {
-                sh '''
-                    echo "Installing dependencies..."
-                    npm install
+                dir('client') {
+                    sh '''
+                        echo "Installing dependencies..."
+                        npm install
 
-                    echo "Building the app..."
-                    npm run build
-                '''
+                        echo "Building the app..."
+                        npm run build
+                    '''
+                }
             }
         }
 
         stage('Deploy to S3') {
             steps {
-                sh '''
-                    echo "Uploading build to S3..."
-                    aws s3 sync dist/ s3://your-s3-bucket-name --delete
-                '''
+                dir('client') {
+                    sh '''
+                        echo "Uploading to S3..."
+                        aws s3 sync dist/ s3://my-expense-tracker-app11 --delete
+                    '''
+                }
             }
         }
     }
