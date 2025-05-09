@@ -23,7 +23,7 @@ pipeline {
                         if (fileExists('package.json')) {
                             sh '''
                                 echo "Installing dependencies..."
-                                npm install
+                                sudo npm install
 
                                 echo "Supabase URL: $VITE_SUPABASE_URL"
                                 echo "Bucket: $BUCKET_NAME"
